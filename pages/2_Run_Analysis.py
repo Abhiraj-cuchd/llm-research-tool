@@ -4,6 +4,9 @@ import random
 from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
 
 from utils.validators import RunMetadata
+from utils.auth import require_auth
+
+require_auth()
 from modules.coder import code_interview
 from modules.scorer import compute_scores
 from utils.persistence import save_session

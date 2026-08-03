@@ -1,6 +1,9 @@
 import streamlit as st
 
+from utils.auth import require_auth
 from modules.analytics import radar_chart
+
+require_auth()
 from modules.scorer import compute_scores
 
 st.title("Participant View")

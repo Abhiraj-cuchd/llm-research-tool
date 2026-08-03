@@ -4,6 +4,7 @@ import pathlib
 import os
 
 from utils.state import init_session_state, get_state
+from utils.auth import require_auth
 from modules.config_loader import load_codebook, ConfigError
 from utils.validators import LLMConfig
 
@@ -22,6 +23,7 @@ def get_secret(key: str) -> str:
 
 st.set_page_config(page_title="Research Tool", page_icon="📊", layout="wide")
 
+require_auth()
 init_session_state()
 
 if st.session_state.get("codebook") is None:

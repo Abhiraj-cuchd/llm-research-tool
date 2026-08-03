@@ -2,6 +2,9 @@ import streamlit as st
 from modules.uploader import extract_zip, UploadError
 from modules.parser import parse_docx, ParseError
 from utils.persistence import list_sessions, load_session
+from utils.auth import require_auth
+
+require_auth()
 
 st.title("Upload Transcripts")
 

@@ -1,6 +1,9 @@
 import streamlit as st
 
+from utils.auth import require_auth
 from modules.scorer import rank_participants, dimension_averages
+
+require_auth()
 from modules.analytics import (
     score_distribution_histogram,
     dimension_bar_chart,

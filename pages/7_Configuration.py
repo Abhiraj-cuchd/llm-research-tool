@@ -5,6 +5,9 @@ import io
 import copy
 
 from utils.validators import Codebook, DimensionConfig, LLMConfig
+from utils.auth import require_auth
+
+require_auth()
 
 st.title("Configuration")
 
