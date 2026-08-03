@@ -1,10 +1,9 @@
 import streamlit as st
 from datetime import datetime
-import os
 import random
 from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
 
-from utils.validators import LLMConfig, RunMetadata
+from utils.validators import RunMetadata
 from modules.coder import code_interview
 from modules.scorer import compute_scores
 from utils.persistence import save_session
@@ -21,43 +20,17 @@ if not st.session_state.get("transcripts"):
 
 transcripts = st.session_state["transcripts"]
 codebook = st.session_state["codebook"]
+llm_config = st.session_state.get("llm_config")
 
-st.header("LLM Configuration")
-
-_existing = st.session_state.get("llm_config")
-
-col1, col2, col3 = st.columns(3)
-with col1:
-    api_key = st.text_input(
-        "API Key",
-        type="password",
-        value=(_existing.api_key if _existing else None) or os.getenv("DEEPSEEK_API_KEY", ""),
-    )
-with col2:
-    base_url = st.text_input(
-        "Base URL",
-        value=(_existing.base_url if _existing else None) or os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com"),
-    )
-with col3:
-    model = st.text_input(
-        "Model",
-        value=(_existing.model if _existing else None) or os.getenv("DEEPSEEK_MODEL", "deepseek-chat"),
-    )
-
-st.divider()
+if not llm_config or not llm_config.api_key:
+    st.error("LLM not configured. Please set API credentials in Configuration.")
+    st.stop()
 
 st.subheader(f"Ready to code {len(transcripts)} participant(s)")
 
 run = st.button("Run Analysis", type="primary", use_container_width=True)
 
 if run:
-    if not api_key:
-        st.error("API key is required.")
-        st.stop()
-
-    llm_config = LLMConfig(api_key=api_key, base_url=base_url, model=model)
-    st.session_state["llm_config"] = llm_config
-
     coding_results = {}
     scores = {}
     failed = {}
@@ -151,5 +124,5 @@ if st.session_state.get("coding_results"):
     st.divider()
     if st.button("Re-run All", type="secondary"):
         for key in ["coding_results", "scores", "run_metadata"]:
-            st.session_state[key] = {}
+            st.session_state[key] = {} if key != "run_metadata" else {}
         st.rerun()
