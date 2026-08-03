@@ -14,7 +14,7 @@ from modules.scorer import compute_scores
 from utils.persistence import save_session
 from utils.spinner_messages import RESEARCH_PHRASES
 
-BATCH_SIZE = 5
+BATCH_SIZE = 8
 
 st.title("Run Analysis")
 

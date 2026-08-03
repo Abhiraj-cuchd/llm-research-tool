@@ -3,6 +3,7 @@ import streamlit as st
 from utils.auth import require_auth
 from utils.state import bootstrap_session
 from modules.analytics import radar_chart
+from modules.exporter import participant_pdf
 
 require_auth()
 bootstrap_session()
@@ -85,3 +86,15 @@ if edited:
         st.session_state["coding_results"][selected_pid] = result
         st.success("Edits saved!")
         st.rerun()
+
+st.divider()
+
+pdf_bytes = participant_pdf(selected_pid, dict(st.session_state))
+st.download_button(
+    label="Download PDF Report",
+    data=pdf_bytes,
+    file_name=f"report_{selected_pid}.pdf",
+    mime="application/pdf",
+    type="primary",
+    use_container_width=True,
+)
