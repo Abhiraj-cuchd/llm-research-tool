@@ -20,7 +20,6 @@ def require_auth() -> None:
     if st.session_state.get("_authenticated"):
         return  # Already authenticated this session
 
-    st.set_page_config(page_title="Research Tool", page_icon="📊", layout="centered")
     st.title("Research Tool")
     pwd = st.text_input("Password", type="password", key="_login_pwd")
     if st.button("Sign in", type="primary"):
