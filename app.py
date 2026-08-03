@@ -24,8 +24,6 @@ st.set_page_config(page_title="Research Tool", page_icon="📊", layout="wide")
 
 init_session_state()
 
-st.switch_page("pages/1_Upload.py")
-
 if st.session_state.get("codebook") is None:
     try:
         st.session_state["codebook"] = load_codebook("config/default_codebook.yaml")
