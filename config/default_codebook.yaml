@@ -1,0 +1,71 @@
+version: "1.0"
+scale: 5
+
+dimensions:
+  - id: financial_precarity
+    label: Financial Precarity
+    weight: 20
+    description: >
+      Income instability, financial abuse, inability to meet basic needs,
+      lack of financial independence, debt burden, inability to afford
+      necessities.
+  - id: employment_precarity
+    label: Employment Precarity
+    weight: 20
+    description: >
+      Job insecurity, informal work, unemployment, workplace discrimination,
+      inability to work due to care responsibilities or health, loss of income
+      due to life events.
+  - id: housing_precarity
+    label: Housing Precarity
+    weight: 15
+    description: >
+      Housing instability, threat of eviction, homelessness, inadequate living
+      conditions, being forced to leave one's home, lack of safe shelter.
+  - id: institutional_precarity
+    label: Institutional Precarity
+    weight: 20
+    description: >
+      Limited access to legal aid, police indifference, bureaucratic barriers,
+      lack of institutional support, discrimination by formal systems,
+      inability to navigate welfare or justice systems.
+  - id: psychological_precarity
+    label: Psychological Precarity
+    weight: 15
+    description: >
+      Mental health deterioration, anxiety, depression, trauma, low self-esteem,
+      emotional abuse, lack of agency, helplessness, fear, isolation.
+  - id: social_precarity
+    label: Social Precarity
+    weight: 10
+    description: >
+      Lack of social support networks, family estrangement, community isolation,
+      no confidants, inability to rely on others for help, stigmatisation.
+
+prompt_template: |
+  You are a qualitative research assistant trained in theory-driven coding.
+  Your task is to analyse a participant interview transcript and assign
+  scores across predefined dimensions of precarity.
+
+  ## Scoring Scale
+  Rate each dimension on a scale from 0 to {scale}, where 0 means no
+  evidence of precarity and {scale} means extreme precarity.
+
+  ## Codebook Dimensions
+  {codebook_json}
+
+  ## Interview Transcript
+  {interview_json}
+
+  ## Required Output
+  Return a single JSON object with the following structure. No markdown,
+  no prose — JSON only.
+
+  {schema_json}
+
+  Also include a "summary" field: a 2-3 sentence narrative describing
+  this participant's overall precarity situation based on the evidence.
+
+  If a dimension has no evidence in the transcript, set its score to 0,
+  its evidence to an empty list [], and its reason to an explanation of
+  why no evidence was found.
