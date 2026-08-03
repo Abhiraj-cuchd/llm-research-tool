@@ -19,7 +19,7 @@ def call(prompt: str, config: LLMConfig) -> str:
     client = OpenAI(
         api_key=config.api_key,
         base_url=config.base_url,
-        timeout=httpx.Timeout(60.0, connect=10.0),
+        timeout=httpx.Timeout(120.0, connect=15.0),
     )
 
     last_exception = None
@@ -31,7 +31,6 @@ def call(prompt: str, config: LLMConfig) -> str:
                     {"role": "system", "content": "You are a precise research assistant. Return only valid JSON."},
                     {"role": "user", "content": prompt},
                 ],
-                response_format={"type": "json_object"},
             )
             content = response.choices[0].message.content
             if content is None:
@@ -44,7 +43,13 @@ def call(prompt: str, config: LLMConfig) -> str:
                 logger.warning(f"LLM call attempt {attempt + 1} failed: {e}. Retrying in {wait}s...")
                 time.sleep(wait)
         except Exception as e:
-            raise LLMError(str(e), e)
+            last_exception = e
+            if attempt < 2:
+                wait = 2 ** (attempt + 1)
+                logger.warning(f"LLM call attempt {attempt + 1} unexpected error: {e}. Retrying in {wait}s...")
+                time.sleep(wait)
+            else:
+                raise LLMError(str(e), e)
 
     raise LLMError(
         f"LLM call failed after 3 attempts. Last error: {last_exception}",

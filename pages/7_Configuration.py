@@ -6,8 +6,10 @@ import copy
 
 from utils.validators import Codebook, DimensionConfig, LLMConfig
 from utils.auth import require_auth
+from utils.state import bootstrap_session
 
 require_auth()
+bootstrap_session()
 
 st.title("Configuration")
 

@@ -3,8 +3,10 @@ from modules.uploader import extract_zip, UploadError
 from modules.parser import parse_docx, ParseError
 from utils.persistence import list_sessions, load_session
 from utils.auth import require_auth
+from utils.state import bootstrap_session
 
 require_auth()
+bootstrap_session()
 
 st.title("Upload Transcripts")
 
