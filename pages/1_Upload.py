@@ -10,6 +10,8 @@ bootstrap_session()
 
 st.title("Upload Transcripts")
 
+st.page_link("pages/0_Objectives.py", label="← Edit Objectives / Rule")
+
 st.markdown("Upload a ZIP file containing interview transcripts in `.docx` format.")
 
 uploaded = st.file_uploader("Choose a ZIP file", type=["zip"], key="zip_uploader")
@@ -117,6 +119,8 @@ with st.expander("Load Previous Session"):
                         st.session_state["scores"] = data.get("scores", {})
                         st.session_state["codebook"] = data.get("codebook", st.session_state.get("codebook"))
                         st.session_state["run_metadata"] = data.get("run_metadata", {})
+                        st.session_state["objectives"] = data.get("objectives", "")
+                        st.session_state["codebook_source"] = data.get("codebook_source", "default")
                         st.success("Session loaded!")
                         st.rerun()
                     except Exception as e:

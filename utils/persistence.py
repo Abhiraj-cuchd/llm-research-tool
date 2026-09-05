@@ -37,6 +37,8 @@ def save_session(session_state: dict, study_name: str = "study") -> str:
         "coding_results": session_state.get("coding_results", {}),
         "scores": session_state.get("scores", {}),
         "run_metadata": session_state.get("run_metadata", {}),
+        "objectives": session_state.get("objectives", ""),
+        "codebook_source": session_state.get("codebook_source", "default"),
     }
 
     serialised = json.loads(json.dumps(payload, default=_serialise, ensure_ascii=False))

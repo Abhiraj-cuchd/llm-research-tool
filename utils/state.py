@@ -22,6 +22,8 @@ def init_session_state():
         "codebook": None,
         "llm_config": None,
         "run_metadata": {},
+        "objectives": "",
+        "codebook_source": "default",
     }
     for key, default in defaults.items():
         if key not in st.session_state:

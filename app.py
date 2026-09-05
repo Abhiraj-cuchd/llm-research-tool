@@ -8,4 +8,4 @@ st.set_page_config(page_title="Research Tool", page_icon="📊", layout="wide")
 require_auth()
 bootstrap_session()
 
-st.switch_page("pages/1_Upload.py")
+st.switch_page("pages/0_Objectives.py")
