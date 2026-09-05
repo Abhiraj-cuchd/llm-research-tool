@@ -1,5 +1,7 @@
 import streamlit as st
 
+st.set_page_config(page_title="Study Dashboard", layout="wide")
+
 from utils.auth import require_auth
 from utils.state import bootstrap_session
 from modules.scorer import rank_participants, dimension_averages

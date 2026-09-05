@@ -21,15 +21,11 @@ def _serialise(obj):
     return str(obj)
 
 
-def save_session(session_state: dict, study_name: str = "study") -> str:
-    data_dir = Path("data")
-    data_dir.mkdir(parents=True, exist_ok=True)
+CHECKPOINT_FILE = "_checkpoint.json"
 
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"{timestamp}_{study_name}.json"
-    filepath = data_dir / filename
 
-    payload = {
+def _build_payload(session_state: dict, study_name: str = "study") -> dict:
+    return {
         "study_name": study_name,
         "saved_at": datetime.now().isoformat(),
         "codebook": session_state.get("codebook"),
@@ -41,12 +37,51 @@ def save_session(session_state: dict, study_name: str = "study") -> str:
         "codebook_source": session_state.get("codebook_source", "default"),
     }
 
-    serialised = json.loads(json.dumps(payload, default=_serialise, ensure_ascii=False))
+
+def save_session(session_state: dict, study_name: str = "study") -> str:
+    data_dir = Path("data")
+    data_dir.mkdir(parents=True, exist_ok=True)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"{timestamp}_{study_name}.json"
+    filepath = data_dir / filename
+
+    serialised = json.loads(
+        json.dumps(_build_payload(session_state, study_name), default=_serialise, ensure_ascii=False)
+    )
 
     with open(filepath, "w", encoding="utf-8") as f:
         json.dump(serialised, f, ensure_ascii=False, indent=2)
 
     return str(filepath)
+
+
+def save_checkpoint(session_state: dict) -> str:
+    data_dir = Path("data")
+    data_dir.mkdir(parents=True, exist_ok=True)
+
+    filepath = data_dir / CHECKPOINT_FILE
+    serialised = json.loads(
+        json.dumps(_build_payload(session_state), default=_serialise, ensure_ascii=False)
+    )
+
+    with open(filepath, "w", encoding="utf-8") as f:
+        json.dump(serialised, f, ensure_ascii=False, indent=2)
+
+    return str(filepath)
+
+
+def load_checkpoint() -> dict | None:
+    filepath = Path("data") / CHECKPOINT_FILE
+    if not filepath.exists():
+        return None
+    return load_session(str(filepath))
+
+
+def clear_checkpoint() -> None:
+    filepath = Path("data") / CHECKPOINT_FILE
+    if filepath.exists():
+        filepath.unlink()
 
 
 def load_session(path: str) -> dict:

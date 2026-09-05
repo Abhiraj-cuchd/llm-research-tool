@@ -3,6 +3,8 @@ import json
 import io
 import pandas as pd
 
+MODEL_DISPLAY_NAME = "Deepseek V4 Flash (MoE)"
+
 
 def _sanitise_column_name(name: str) -> str:
     return re.sub(r"[^a-z0-9_]", "_", name.lower())
@@ -44,7 +46,7 @@ def build_export_df(session_state: dict) -> pd.DataFrame:
     df = df[existing_cols + other_cols]
 
     # Enforce dtypes
-    score_cols = [c for c in df.columns if c.endswith("_score")]
+    score_cols = [c for c in df.columns if c.endswith("_score") and c != "overall_score"]
     for c in score_cols:
         df[c] = df[c].astype("Int64")
     df["overall_score"] = df["overall_score"].astype("Float64")
@@ -186,10 +188,9 @@ def participant_pdf(pid: str, session_state: dict) -> bytes:
 
         # ── Participant metadata table ─────────────────────────────────────
         overall_str = f"{participant_score.overall:.2f}" if participant_score else "N/A"
-        model_str = "N/A"
+        model_str = MODEL_DISPLAY_NAME
         date_str = _dt.now().strftime("%Y-%m-%d")
         if run_metadata:
-            model_str = run_metadata.get("model", "N/A") if isinstance(run_metadata, dict) else getattr(run_metadata, "model", "N/A")
             ts = run_metadata.get("timestamp") if isinstance(run_metadata, dict) else getattr(run_metadata, "timestamp", None)
             if ts:
                 date_str = str(ts)[:10]
@@ -385,7 +386,7 @@ def to_pdf(session_state: dict) -> bytes:
         # Study metadata
         run_metadata = session_state.get("run_metadata")
         date_str = _dt.now().strftime("%Y-%m-%d")
-        model_str = "N/A"
+        model_str = MODEL_DISPLAY_NAME
         coding_results = session_state.get("coding_results", {})
         scores = session_state.get("scores", {})
         codebook = session_state.get("codebook")
@@ -398,7 +399,6 @@ def to_pdf(session_state: dict) -> bytes:
                     date_str = str(ts)[:10]
                 except Exception:
                     pass
-            model_str = getattr(run_metadata, "model", None) or "N/A"
             pc = getattr(run_metadata, "participant_count", None)
             if pc:
                 total_participants = pc
@@ -431,15 +431,31 @@ def to_pdf(session_state: dict) -> bytes:
         elements.append(Spacer(1, 0.2 * cm))
 
         dim_configs = codebook.dimensions if codebook else []
-        header_row = ["Participant", "Overall Score"] + [d.label for d in dim_configs]
+        cell_style = ParagraphStyle(
+            "SummaryCell",
+            parent=styles["Normal"],
+            fontSize=8,
+            leading=10,
+        )
+        header_style = ParagraphStyle(
+            "SummaryHeader",
+            parent=cell_style,
+            fontName="Helvetica-Bold",
+            textColor=colors.white,
+        )
+
+        header_row = [
+            Paragraph("<b>Participant</b>", header_style),
+            Paragraph("<b>Overall Score</b>", header_style),
+        ] + [Paragraph(d.label, header_style) for d in dim_configs]
         summary_rows = [header_row]
         for pid, result in coding_results.items():
             overall = scores[pid].overall if pid in scores else None
             overall_str = f"{overall:.2f}" if isinstance(overall, float) else (str(overall) if overall is not None else "")
-            row = [pid, overall_str]
+            row = [Paragraph(pid, cell_style), Paragraph(overall_str, cell_style)]
             for dim in dim_configs:
                 d = result.dimensions.get(dim.id) if hasattr(result, "dimensions") else None
-                row.append(str(d.score) if d else "")
+                row.append(Paragraph(str(d.score) if d else "", cell_style))
             summary_rows.append(row)
 
         if len(summary_rows) > 1:
@@ -451,9 +467,6 @@ def to_pdf(session_state: dict) -> bytes:
             sum_table = Table(summary_rows, colWidths=col_widths, repeatRows=1)
             sum_table.setStyle(TableStyle([
                 ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#2c3e50")),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                ("FONTSIZE", (0, 0), (-1, -1), 9),
                 ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#bbbbbb")),
                 ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f5f5f5")]),
                 ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
@@ -514,13 +527,11 @@ def to_pdf(session_state: dict) -> bytes:
         lines.append("Study Metadata")
         lines.append("-" * 20)
         lines.append(f"Total Participants: {len(coding_results)}")
+        lines.append(f"Model Used: {MODEL_DISPLAY_NAME}")
         if run_metadata:
             ts = getattr(run_metadata, "timestamp", None)
             if ts:
                 lines.append(f"Date Generated: {str(ts)[:10]}")
-            model = getattr(run_metadata, "model", None)
-            if model:
-                lines.append(f"Model Used: {model}")
         lines.append("")
 
         dim_configs = codebook.dimensions if codebook else []

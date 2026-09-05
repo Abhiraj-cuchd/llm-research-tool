@@ -7,3 +7,11 @@
 - Favors tidy, flat data layouts: one row per participant/observation, metrics as columns, with only essential fields (scores, evidence, reasoning). Confidence: 0.75
 - Prefers structured, phase-wise task breakdowns for implementation plans. Confidence: 0.70
 - Values deployment runbooks — expects clear, step-by-step documentation for getting the app running. Confidence: 0.75
+- Prefers receiving an implementation plan as a markdown file before any code changes are made. Confidence: 0.8
+- Prefers user-provided/uploadable configuration over hardcoded defaults — e.g., deriving a coding rulebook from an uploaded objectives document via the LLM rather than a hardcoded YAML. Confidence: 0.8
+- Prefers a human review/edit step for LLM-generated artifacts before they feed downstream analysis, rather than fully automatic pipelines. Confidence: 0.65
+- Favors a dedicated page/step for each distinct workflow stage rather than adding to an existing page. Confidence: 0.6
+- Deploys the app on Streamlit Community Cloud and relies on push-to-main auto-redeploy rather than manual deployment. Confidence: 0.8
+- Prefers wide/full-width page layouts in the Streamlit app — dashboards should fill the viewport width rather than render centered/narrow. Confidence: 0.7
+- Prefers generated PDF report tables to wrap cell text within column widths rather than overflow/overlap into neighboring columns. Confidence: 0.7
+- Uses DeepSeek V4 Flash (MoE) as the model; report output should label it with the exact display string "Deepseek V4 Flash (MoE)" rather than a raw metadata value. Confidence: 0.75
